@@ -3,11 +3,6 @@
     "description": "A set off CI-Tools",
     "type": "library",
     "license": "MIT",
-    "autoload": {
-        "psr-4": {
-            "Cutlery42\\PhpCiTools\\": "src/"
-        }
-    },
     "authors": [
         {
             "name": "Patrick Heller",
@@ -19,5 +14,8 @@
         "symfony/console": "^6.3",
         "composer/class-map-generator": "^1.1",
         "azjezz/psl": "^2.7"
+    },
+    "require-dev": {
+        "vimeo/psalm": "^5.15"
     }
 }

@@ -12,7 +12,7 @@ use Symfony\Component\Console\SingleCommandApplication;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use function Psl\Vec\map;
 
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 (new SingleCommandApplication())
     ->setName('Searches ambiguous classes')
@@ -22,7 +22,7 @@ require __DIR__ . '/vendor/autoload.php';
         $io = new SymfonyStyle($input, $output);
         
         $generator = new ClassMapGenerator();
-        $paths = map($input->getArgument('paths'), fn(string $p):string => realpath($p));
+        $paths = map((array) $input->getArgument('paths'), fn($p):string => (string) realpath((string) $p));
 
         $io->info('Scanning directories');
         $io->listing($paths);
@@ -33,8 +33,6 @@ require __DIR__ . '/vendor/autoload.php';
         
         $classMap = $generator->getClassMap();
         $classMap->sort();
-
-        
         
         $ambiguous = $classMap->getAmbiguousClasses();
         

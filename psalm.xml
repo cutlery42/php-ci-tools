@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="1"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config dummy/ambigious-classes/vendor/vimeo/psalm/config.xsd"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="true"
+>
+    <fileExtensions>
+        <extension name=""/>
+    </fileExtensions>
+    <projectFiles>
+        <directory name="bin/"/>
+        <ignoreFiles>
+            <directory name="dummy" />
+            <directory name="vendor" />
+        </ignoreFiles>
+    </projectFiles>
+</psalm>
