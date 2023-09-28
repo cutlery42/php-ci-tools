@@ -1,0 +1,62 @@
+#!/usr/bin/env php
+
+<?php
+
+use Composer\ClassMapGenerator\ClassMapGenerator;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\SingleCommandApplication;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use function Psl\Vec\map;
+
+require __DIR__ . '/vendor/autoload.php';
+
+(new SingleCommandApplication())
+    ->setName('Searches ambiguous classes')
+    ->addArgument('paths', InputArgument::IS_ARRAY, 'The paths to scan for classes')
+    ->addOption('silent', 's', InputOption::VALUE_NONE)
+    ->setCode(function (InputInterface $input, OutputInterface $output): int {
+        $io = new SymfonyStyle($input, $output);
+        
+        $generator = new ClassMapGenerator();
+        $paths = map($input->getArgument('paths'), fn(string $p):string => realpath($p));
+
+        $io->info('Scanning directories');
+        $io->listing($paths);
+        
+        foreach ($paths as $path) {
+            $generator->scanPaths($path);
+        }
+        
+        $classMap = $generator->getClassMap();
+        $classMap->sort();
+
+        
+        
+        $ambiguous = $classMap->getAmbiguousClasses();
+        
+        if ($ambiguous === []) {
+            $io->info(sprintf('"%s" classes found', $classMap->count()));
+            $io->success('No ambiguous classes found');
+            
+            return Command::SUCCESS;
+        }
+
+        $t = $io->createTable();
+        $t->setHeaders(['FQCN', 'Paths']);
+        foreach ($ambiguous as $symbol => $paths) {
+            $t->addRow([
+                $symbol,
+                implode("\n", $paths)
+            ]);
+        }
+        $io->error(sprintf('"%s" ambiguous classes found', $classMap->count()));
+        $t->render();
+        
+        
+        return Command::SUCCESS;
+    })
+    ->run();

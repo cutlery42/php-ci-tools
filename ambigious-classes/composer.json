@@ -1,0 +1,23 @@
+{
+    "name": "cutlery42/php-ci-tools",
+    "description": "A set off CI-Tools",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Cutlery42\\PhpCiTools\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Patrick Heller",
+            "email": "patrick.heller@digistore24.team"
+        }
+    ],
+    "require": {
+        "php": "~8.2",
+        "symfony/console": "^6.3",
+        "composer/class-map-generator": "^1.1",
+        "azjezz/psl": "^2.7"
+    }
+}
