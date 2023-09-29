@@ -6,11 +6,6 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup PHP with PECL extension
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
       - uses: actions/checkout@v3
-      - uses: php-actions/composer@v6
-      - name: Psalm
-        uses: docker://ghcr.io/psalm/psalm-github-actions
+      - name: Build and push
+        uses: docker/build-push-action@v5
