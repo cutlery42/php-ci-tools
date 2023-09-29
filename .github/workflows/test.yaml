@@ -1,11 +1,23 @@
 name: Tests
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+run-name: ${{ github.actor }} triggered Tests
 on:
   push: ~
+permissions:
+  contents: read
+  id-token: write
 jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - uses: actions/checkout@v3
-      - name: Build and push
-        uses: docker/build-push-action@v5
+      - run: |
+          docker build --cache-to type=gha,mode=max --cache-from type=gha -t app .
+      - name: psalm
+        run: docker run app vendor/bin/psalm
+      - name: Test ambiguous-classes
+        run: |
+          docker run app bin/ambiguous-classes dummy/ambigious-classes/without-errors
