@@ -55,6 +55,6 @@ require __DIR__ . '/../vendor/autoload.php';
         $t->render();
         
         
-        return Command::SUCCESS;
+        return Command::FAILURE;
     })
     ->run();
