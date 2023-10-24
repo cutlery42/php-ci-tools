@@ -10,6 +10,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\SingleCommandApplication;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function Psl\File\read;
+use function Psl\Vec\filter;
+use function Psl\Vec\filter_nulls;
+use function Psl\Vec\keys;
 use function Psl\Vec\map;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -17,16 +21,14 @@ require __DIR__ . '/../vendor/autoload.php';
 (new SingleCommandApplication())
     ->setName('Searches ambiguous classes')
     ->addArgument('paths', InputArgument::IS_ARRAY, 'The paths to scan for classes')
-    ->addOption('silent', 's', InputOption::VALUE_NONE)
+    ->addOption('baseline', null, InputOption::VALUE_NONE, 'Output a baseline file, instead of a table')
+    ->addOption('ignore-baseline', null, InputOption::VALUE_REQUIRED, 'Path to a baseline file')
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
         $io = new SymfonyStyle($input, $output);
         
         $generator = new ClassMapGenerator();
         $paths = map((array) $input->getArgument('paths'), fn($p):string => (string) realpath((string) $p));
 
-        $io->info('Scanning directories');
-        $io->listing($paths);
-        
         foreach ($paths as $path) {
             $generator->scanPaths($path);
         }
@@ -42,7 +44,31 @@ require __DIR__ . '/../vendor/autoload.php';
             
             return Command::SUCCESS;
         }
+        
+        $baseline = (string) $input->getOption('ignore-baseline');
+        if ($baseline !== '') {
+            $ignored = filter(explode("\n", read(realpath($baseline))));
+            $remaining = [];
+            foreach ($ambiguous as $k=>$v) {
+                if (in_array($k, $ignored, true)) {
+                    continue;
+                }
+                $remaining[$k] = $v;
+            }
 
+            if ($remaining === []) {
+                $io->success(sprintf('No new ambiguous classes found, "%s" ignored', count($ignored)));
+
+                return Command::SUCCESS;
+            }
+        }
+        
+        if ($input->getOption('baseline')) {
+            // output a baseline
+            $io->write(implode("\n", keys($ambiguous)));
+            return Command::FAILURE;
+        }
+        
         $t = $io->createTable();
         $t->setHeaders(['FQCN', 'Paths']);
         foreach ($ambiguous as $symbol => $paths) {

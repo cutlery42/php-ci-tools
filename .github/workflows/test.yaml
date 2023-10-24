@@ -21,7 +21,9 @@ jobs:
       - name: Test ambiguous-classes
         run: |
           set -ex
-          docker run app bin/ambiguous-classes dummy/ambigious-classes/without-errors
+          docker run app bin/ambiguous-classes dummy/ambiguous-classes/without-errors
+          docker run app bin/ambiguous-classes dummy/ambiguous-classes/with-errors --baseline > ambiguous-classes.baseline
+          docker run app bin/ambiguous-classes dummy/ambiguous-classes/with-errors --ignore-baseline=ambiguous-classes.baseline
           # We negate the exit code, because we expect an error
-          docker run app bin/ambiguous-classes dummy/ambigious-classes/with-errors || exit 0
+          docker run app bin/ambiguous-classes dummy/ambiguous-classes/with-errors || exit 0
           
